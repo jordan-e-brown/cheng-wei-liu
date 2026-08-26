@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "成为流: Doctor",
+      "type": "shell",
+      "command": "make doctor",
+      "problemMatcher": []
+    },
+    {
+      "label": "成为流: Generate project",
+      "type": "shell",
+      "command": "make generate",
+      "problemMatcher": []
+    },
+    {
+      "label": "成为流: Build iOS simulator",
+      "type": "shell",
+      "command": "make build-sim",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "成为流: Run 汉语谈话 backend (LAN)",
+      "type": "shell",
+      "command": "make backend-lan",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "成为流: Backend tests",
+      "type": "shell",
+      "command": "make test-backend",
+      "problemMatcher": []
+    },
+    {
+      "label": "成为流: List iPhones",
+      "type": "shell",
+      "command": "make list-devices",
+      "problemMatcher": []
+    }
+  ]
+}

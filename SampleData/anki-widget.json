@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-08-25T18:43:00-04:00",
+  "decks": [
+    {
+      "name": "Chinese Grammar (汉语 语法)",
+      "notes": [
+        {
+          "id": "sample-grammar-1",
+          "noteType": "Chinese",
+          "tags": ["sample"],
+          "fields": [
+            {"name": "Hanzi", "value": "虽然……但是……"},
+            {"name": "Pinyin", "value": "suīrán… dànshì…"},
+            {"name": "English", "value": "although… but…"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Neri's Chinese Course",
+      "notes": [
+        {
+          "id": "sample-neri-1",
+          "noteType": "Chinese",
+          "tags": ["sample"],
+          "fields": [
+            {"name": "Hanzi", "value": "认识"},
+            {"name": "Pinyin", "value": "rènshi"},
+            {"name": "English", "value": "to know; recognize"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# macOS / Xcode
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
+.derivedData/
+ChengWeiLiu.xcodeproj/
+
+# Python
+Backend/.venv/
+Backend/.env
+Backend/data/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Editors
+.vscode/*.log
+
+# Local build products
+build/
+*.ipa
+*.xcarchive

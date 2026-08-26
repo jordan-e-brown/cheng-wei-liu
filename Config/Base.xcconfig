@@ -1,0 +1,10 @@
+// 成为流 local build identifiers.
+// Change these three values before signing with your Apple Developer account.
+APP_BUNDLE_ID = com.example.chengweiliu
+WIDGET_BUNDLE_ID = com.example.chengweiliu.widget
+APP_GROUP_ID = group.com.example.chengweiliu
+
+MARKETING_VERSION = 0.2.0
+CURRENT_PROJECT_VERSION = 2
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+SWIFT_VERSION = 5.10

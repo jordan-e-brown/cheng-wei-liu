@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/__pycache__": true,
+    "**/.derivedData": true
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/Backend/.venv/bin/python",
+  "terminal.integrated.cwd": "${workspaceFolder}"
+}

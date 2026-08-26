@@ -1,0 +1,58 @@
+name: ChengWeiLiu
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+    SWIFT_VERSION: 5.10
+    IPHONEOS_DEPLOYMENT_TARGET: 17.0
+    MARKETING_VERSION: 0.2.0
+    CURRENT_PROJECT_VERSION: 2
+configs:
+  Debug: debug
+  Release: release
+
+targets:
+  ChengWeiLiu:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
+    info:
+      path: App/Info.plist
+    entitlements:
+      path: App/ChengWeiLiu.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
+        PRODUCT_NAME: ChengWeiLiu
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - target: ChengWeiLiuWidget
+        embed: true
+
+  ChengWeiLiuWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widget
+      - Shared
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
+    info:
+      path: Widget/Info.plist
+    entitlements:
+      path: Widget/ChengWeiLiuWidget.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(WIDGET_BUNDLE_ID)
+        PRODUCT_NAME: ChengWeiLiuWidget
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
