@@ -10,20 +10,13 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
-	<key>CFBundleDisplayName</key>
-	<string>成为流</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>AppGroupIdentifier</key>
-	<string>$(APP_GROUP_ID)</string>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.widgetkit-extension</string>
-	</dict>
+	<string>1</string>
 </dict>
 </plist>

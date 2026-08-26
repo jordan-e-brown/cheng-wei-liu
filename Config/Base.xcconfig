@@ -1,8 +1,8 @@
 // 成为流 local build identifiers.
 // Change these three values before signing with your Apple Developer account.
-APP_BUNDLE_ID = com.example.chengweiliu
-WIDGET_BUNDLE_ID = com.example.chengweiliu.widget
-APP_GROUP_ID = group.com.example.chengweiliu
+APP_BUNDLE_ID = com.jordanebrown.chengweiliu
+WIDGET_BUNDLE_ID = com.jordanebrown.chengweiliu.widget
+APP_GROUP_ID = group.com.jordanebrown.chengweiliu
 
 MARKETING_VERSION = 0.2.0
 CURRENT_PROJECT_VERSION = 2

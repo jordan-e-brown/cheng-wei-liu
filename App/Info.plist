@@ -10,39 +10,13 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>CFBundleDisplayName</key>
-	<string>成为流</string>
-	<key>CFBundleName</key>
-	<string>ChengWeiLiu</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>AppGroupIdentifier</key>
-	<string>$(APP_GROUP_ID)</string>
-	<key>UILaunchScreen</key>
-	<dict/>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>$(APP_BUNDLE_ID)</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>chengweiliu</string>
-			</array>
-		</dict>
-	</array>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>成为流 connects to your Mac-hosted 汉语谈话 development server while both devices are on your local network.</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-	</dict>
+	<string>1</string>
 </dict>
 </plist>
