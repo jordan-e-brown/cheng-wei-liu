@@ -1,3 +1,13 @@
+# 0.3.0 — JSON import, interactive widgets, and activity return
+
+- Import normalized schema 1/2 and CrowdAnki JSON with nested decks, field mapping, validation, and atomic replacement.
+- Handle JSON opened from Files/AirDrop and coordinate cloud file reads off the UI thread.
+- Add widget Reveal/Next, content-specific action tokens, and a day of future timeline entries.
+- Persist app/widget events independently of deck snapshots and export activity JSON from iOS.
+- Add a journaled AnkiConnect desktop bridge with optional grading and explicit recovery for uncertain remote outcomes.
+- Add Xcode import/rotation/concurrency/large-deck/UI tests and mocked desktop round-trip tests.
+- Retain iOS 17+ deployment compatibility, including iOS 26.6; bump app/widget version to 0.3.0 (3).
+
 # Changelog
 
 ## 0.2.0 — 2026-08-25

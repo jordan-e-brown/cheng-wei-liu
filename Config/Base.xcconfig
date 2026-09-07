@@ -4,7 +4,7 @@ APP_BUNDLE_ID = com.jordanebrown.chengweiliu
 WIDGET_BUNDLE_ID = com.jordanebrown.chengweiliu.widget
 APP_GROUP_ID = group.com.jordanebrown.chengweiliu
 
-MARKETING_VERSION = 0.2.0
-CURRENT_PROJECT_VERSION = 2
+MARKETING_VERSION = 0.3.0
+CURRENT_PROJECT_VERSION = 3
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
 SWIFT_VERSION = 5.10

@@ -55,18 +55,51 @@ enum AppGroupStore {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedConfig.appGroupID)
     }
 
-    static func loadDeckExport() -> DeckExport? {
-        guard let url = containerURL?.appendingPathComponent(SharedConfig.deckFilename),
+    static func loadDeckExport(from directory: URL? = nil) -> DeckExport? {
+        guard let url = (directory ?? containerURL)?.appendingPathComponent(SharedConfig.deckFilename),
               let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(DeckExport.self, from: data)
     }
 
-    static func saveDeckExport(data: Data) throws {
-        guard let url = containerURL?.appendingPathComponent(SharedConfig.deckFilename) else {
-            throw StoreError.appGroupUnavailable
+    @discardableResult
+    static func saveDeckExport(data: Data, to directory: URL? = nil) throws -> DeckImportResult {
+        let result = try DeckImporter.decode(data)
+        guard let root = directory ?? containerURL else { throw StoreError.appGroupUnavailable }
+        // Validate the entire input before replacing the last good snapshot.
+        try StudyActivityStore(root: root).withLock {
+            try JSONEncoder().encode(result.export).write(to: root.appendingPathComponent(SharedConfig.deckFilename), options: .atomic)
         }
-        _ = try JSONDecoder().decode(DeckExport.self, from: data)
-        try data.write(to: url, options: .atomic)
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
+        return result
+    }
+
+    static func activityStore() throws -> StudyActivityStore {
+        guard let root = containerURL else { throw StoreError.appGroupUnavailable }
+        return StudyActivityStore(root: root)
+    }
+
+    static func widgetState(in directory: URL? = nil) -> WidgetStudyState {
+        guard let url = (directory ?? containerURL)?.appendingPathComponent("widget-state.json"),
+              let data = try? Data(contentsOf: url),
+              let state = try? JSONDecoder().decode(WidgetStudyState.self, from: data) else { return .init() }
+        return state
+    }
+
+    static func widgetAction(_ action: String, token: String, in directory: URL? = nil, at date: Date = Date(), interval: RefreshInterval? = nil) throws {
+        guard ["revealed", "skipped"].contains(action) else { throw ImportFailure(message: "Unknown widget action.") }
+        let store = try directory.map { StudyActivityStore(root: $0) } ?? activityStore()
+        try store.withLock {
+            guard let export = loadDeckExport(from: directory) else { throw ImportFailure(message: "Import your Anki JSON first.") }
+            var state = widgetState(in: directory)
+            guard let card = FlashcardSchedule.card(export: export, at: date, interval: interval ?? refreshInterval, state: state), card.token == token else { return }
+            if action == "revealed", state.revealedToken == token { return }
+            try store.recordUnlocked(type: action, source: "widget", note: card.note, deckName: card.deckName, profile: export.sourceProfile, deduplicationKey: token + "|" + action)
+            if action == "skipped" { state.offset += 1; state.revealedToken = nil }
+            else { state.revealedToken = token }
+            try JSONEncoder().encode(state).write(to: store.root.appendingPathComponent("widget-state.json"), options: .atomic)
+        }
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadAllTimelines()
         #endif

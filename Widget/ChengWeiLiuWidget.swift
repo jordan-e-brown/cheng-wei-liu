@@ -5,6 +5,8 @@ struct FlashcardEntry: TimelineEntry {
     let date: Date
     let note: AnkiNote?
     let deckName: String?
+    var token: String = ""
+    var revealed: Bool = false
 }
 
 struct FlashcardProvider: TimelineProvider {
@@ -28,37 +30,30 @@ struct FlashcardProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FlashcardEntry) -> Void) {
-        completion(entry(for: Date()))
+        if context.isPreview { completion(placeholder(in: context)) }
+        else { completion(entry(for: Date())) }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<FlashcardEntry>) -> Void) {
         let now = Date()
-        let interval = AppGroupStore.refreshInterval
-        let next = Calendar.current.date(byAdding: .minute, value: interval.minutes, to: now)
-            ?? now.addingTimeInterval(TimeInterval(interval.minutes * 60))
-        completion(Timeline(entries: [entry(for: now)], policy: .after(next)))
+        guard let export = AppGroupStore.loadDeckExport() else {
+            completion(Timeline(entries: [entry(for: now)], policy: .after(now.addingTimeInterval(1800))))
+            return
+        }
+        let entries = FlashcardSchedule.timeline(export: export, from: now, interval: AppGroupStore.refreshInterval, state: AppGroupStore.widgetState()).map(Self.entry)
+        completion(Timeline(entries: entries.isEmpty ? [entry(for: now)] : entries, policy: .atEnd))
+    }
+
+    static func entry(_ card: ScheduledFlashcard) -> FlashcardEntry {
+        FlashcardEntry(date: card.date, note: card.note, deckName: card.deckName, token: card.token, revealed: card.revealed)
     }
 
     private func entry(for date: Date) -> FlashcardEntry {
-        guard let export = AppGroupStore.loadDeckExport() else {
+        guard let export = AppGroupStore.loadDeckExport(),
+              let card = FlashcardSchedule.card(export: export, at: date, interval: AppGroupStore.refreshInterval, state: AppGroupStore.widgetState()) else {
             return FlashcardEntry(date: date, note: nil, deckName: nil)
         }
-
-        let selectedDecks = preferredDecks.compactMap { name in
-            export.decks.first(where: { $0.name == name && !$0.notes.isEmpty })
-        }
-        let decks = selectedDecks.isEmpty ? export.decks.filter { !$0.notes.isEmpty } : selectedDecks
-        guard !decks.isEmpty else {
-            return FlashcardEntry(date: date, note: nil, deckName: nil)
-        }
-
-        let intervalSeconds = max(1, AppGroupStore.refreshInterval.minutes * 60)
-        let slot = Int(date.timeIntervalSince1970) / intervalSeconds
-        let nonnegativeSlot = slot == Int.min ? 0 : abs(slot)
-        let deck = decks[nonnegativeSlot % decks.count]
-        let cardSlot = nonnegativeSlot / max(1, decks.count)
-        let note = deck.notes[cardSlot % deck.notes.count]
-        return FlashcardEntry(date: date, note: note, deckName: deck.name)
+        return Self.entry(card)
     }
 }
 
@@ -68,7 +63,7 @@ struct ChengWeiLiuWidgetView: View {
 
     var body: some View {
         if let note = entry.note {
-            VStack(alignment: family == .systemSmall ? .center : .leading, spacing: 6) {
+            VStack(alignment: family == .systemSmall ? .center : .leading, spacing: family == .systemSmall ? 3 : 6) {
                 HStack {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(Brand.appChinese)
@@ -85,25 +80,41 @@ struct ChengWeiLiuWidgetView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Spacer(minLength: 4)
+                Spacer(minLength: family == .systemSmall ? 0 : 4)
 
                 Text(note.hanzi)
-                    .font(.system(size: family == .systemSmall ? 34 : 42, weight: .semibold, design: .rounded))
+                    .font(.system(size: family == .systemSmall ? 28 : 42, weight: .semibold, design: .rounded))
                     .minimumScaleFactor(0.55)
-                    .lineLimit(2)
+                    .lineLimit(family == .systemSmall && entry.revealed ? 1 : 2)
                     .frame(maxWidth: .infinity, alignment: family == .systemSmall ? .center : .leading)
 
-                if let pinyin = note.pinyin {
+                if entry.revealed, let pinyin = note.pinyin {
                     Text(pinyin)
-                        .font(.subheadline)
+                        .font(family == .systemSmall ? .caption2 : .subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
 
-                if family != .systemSmall, let meaning = note.meaning {
+                if entry.revealed, let meaning = note.meaning {
                     Text(meaning)
-                        .font(.subheadline)
+                        .font(family == .systemSmall ? .caption2 : .subheadline)
                         .lineLimit(2)
+                }
+
+                if family == .systemLarge, entry.revealed, let example = note.example {
+                    Text(example).font(.body).lineLimit(4)
+                }
+
+                HStack {
+                    if !entry.revealed {
+                        Button(intent: WidgetStudyIntent(action: "revealed", token: entry.token)) {
+                            Text("Reveal").font(.caption)
+                        }.buttonStyle(.bordered)
+                    }
+                    Spacer(minLength: 0)
+                    Button(intent: WidgetStudyIntent(action: "skipped", token: entry.token)) {
+                        Image(systemName: "arrow.right").font(.caption)
+                    }.buttonStyle(.bordered).accessibilityLabel("Next card")
                 }
 
                 Spacer(minLength: 2)
@@ -134,7 +145,7 @@ struct ChengWeiLiuWidgetView: View {
         var components = URLComponents()
         components.scheme = "chengweiliu"
         components.host = "quick-study"
-        var items = [URLQueryItem(name: "noteID", value: noteID)]
+        var items = [URLQueryItem(name: "noteID", value: noteID), URLQueryItem(name: "source", value: "widget")]
         if let deckName {
             items.append(URLQueryItem(name: "deck", value: deckName))
         }

@@ -5,7 +5,11 @@ Native iPhone learning app with two isolated projects:
 - **快学 — Kuài Xué**: Anki-based self-study + rotating WidgetKit flashcards.
 - **汉语谈话 — Hànyǔ Tánhuà**: persistent Mandarin language-partner conversations. It does not read Anki data.
 
-Current repo version: **0.2.0**.
+Current repo version: **0.3.0**. See [validation results](docs/VALIDATION.md) for the tested environment and remaining device checks.
+
+JSON import now accepts the desktop exporter and CrowdAnki deck JSON. Interactive widgets and app study actions save an offline activity ledger that can be exported back to Anki Desktop. See [the import and sync guide](docs/ANKI_SYNC.md) for the complete workflow and review-sync limits.
+
+Supports iOS 17+, including iOS 26.6. Local validation uses Xcode 26.6 and its installed iOS 26.5 SDK/simulator; physical iOS 26.6 runtime verification is separate.
 
 ## Intended development environment
 
@@ -124,7 +128,7 @@ In **设置**, select:
 15 min · 30 min · 1 hr · 2 hr · 3 hr · 6 hr · 12 hr
 ```
 
-This drives WidgetKit's requested next timeline refresh. iOS still controls the actual redraw time.
+This schedules a day of future WidgetKit entries. iOS still controls the actual redraw time. Reveal and Next work inside the widget and record study interactions.
 
 Tapping a displayed card deep-links into the exact deck/note in 快学.
 
@@ -188,6 +192,8 @@ Learner messages stay verbatim. Older assistant/context material is eligible for
 
 ```bash
 make test-backend
+make test-anki
+make test-ios DEVICE_ID=YOUR_SIMULATOR_UDID
 ```
 
 The current tests cover SQLite persistence/reopening/memory reset and enforce the critical 汉语谈话 prompt boundary from 快学.
@@ -206,6 +212,6 @@ See:
 1. Build/install on the physical iPhone and remediate any signing/runtime issues.
 2. Add OpenAI Realtime voice to 汉语谈话.
 3. Add native pronunciation/tones feedback.
-4. Build the Anki Desktop companion bridge for collection-mutating add-on operations.
+4. Extend the file-based desktop bridge with acknowledged transport and historical scheduling reconciliation.
 5. Reimplement selected UI-only Anki add-on capabilities natively in 快学.
 6. Add TestFlight CI/signing after the app is stable on-device.

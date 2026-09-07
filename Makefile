@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 PROJECT := ChengWeiLiu.xcodeproj
 SCHEME := ChengWeiLiu
-DERIVED := .derivedData
+DERIVED ?= /tmp/ChengWeiLiuDerivedData
 TEAM_ID ?=
 DEVICE_ID ?=
 
@@ -28,7 +28,7 @@ build-sim: generate
 		-sdk iphonesimulator \
 		-destination 'generic/platform=iOS Simulator' \
 		-derivedDataPath $(DERIVED) \
-		CODE_SIGNING_ALLOWED=NO \
+		CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES \
 		build
 
 build-device: generate
@@ -66,3 +66,19 @@ backend-lan:
 test-backend:
 	@if [ ! -x Backend/.venv/bin/python ]; then $(MAKE) backend-install; fi
 	cd Backend && .venv/bin/python -m unittest discover -s tests -v
+
+.PHONY: test-anki test-ios build-device-unsigned
+
+test-anki:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s Tools/AnkiExporter/tests -v
+
+test-ios: generate
+	@test -n "$(DEVICE_ID)" || (echo "Usage: make test-ios DEVICE_ID=SIMULATOR_UDID" && exit 1)
+	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
+		-destination 'platform=iOS Simulator,id=$(DEVICE_ID)' -derivedDataPath $(DERIVED) \
+		-parallel-testing-enabled NO CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES test
+
+build-device-unsigned: generate
+	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
+		-sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath $(DERIVED) \
+		CODE_SIGNING_ALLOWED=NO build

@@ -107,7 +107,7 @@ def ordered_fields(fields: Dict[str, Dict[str, Any]]) -> List[Dict[str, str]]:
     return [
         {
             "name": name,
-            "value": clean_anki_text(str(meta.get("value", ""))),
+            "value": str(meta.get("value", "")),
         }
         for name, meta in ordered
     ]
@@ -115,7 +115,8 @@ def ordered_fields(fields: Dict[str, Dict[str, Any]]) -> List[Dict[str, str]]:
 
 def export_deck(deck_name: str) -> Dict[str, Any]:
     # Quoted deck search safely handles spaces and nested deck names.
-    note_ids: List[int] = invoke("findNotes", query=f'deck:"{deck_name}"')
+    escaped = deck_name.replace("\\", "\\\\").replace('"', '\\"')
+    note_ids: List[int] = invoke("findNotes", query=f'deck:"{escaped}"')
     notes: List[Dict[str, Any]] = []
 
     for batch in chunks(note_ids):
@@ -123,7 +124,8 @@ def export_deck(deck_name: str) -> Dict[str, Any]:
         for note in info:
             notes.append(
                 {
-                    "id": str(note.get("noteId", "")),
+                    "id": str(note["noteId"]),
+                    "cardIDs": [str(card) for card in note.get("cards", [])],
                     "noteType": note.get("modelName", ""),
                     "tags": note.get("tags", []),
                     "fields": ordered_fields(note.get("fields", {})),
@@ -151,7 +153,7 @@ def main() -> int:
                 print(name)
             return 0
 
-        selected = all_decks if args.all else args.deck
+        selected = list(dict.fromkeys(all_decks if args.all else args.deck))
         if not selected:
             parser.error("Choose at least one --deck, or use --all / --list-decks.")
 
@@ -159,9 +161,13 @@ def main() -> int:
         if missing:
             raise RuntimeError("Deck(s) not found: " + ", ".join(missing))
 
+        profile = invoke("getActiveProfile")
         exported = [export_deck(name) for name in selected]
+        if invoke("getActiveProfile") != profile:
+            raise RuntimeError("Anki profile changed during export. Export again.")
         payload = {
-            "schemaVersion": 1,
+            "schemaVersion": 2,
+            "sourceProfile": profile,
             "exportedAt": datetime.now(timezone.utc).isoformat(),
             "source": "Anki Desktop via AnkiConnect",
             "decks": exported,
@@ -169,7 +175,9 @@ def main() -> int:
 
         output = Path(args.output).expanduser().resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        temporary = output.with_name(output.name + ".tmp")
+        temporary.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        temporary.replace(output)
 
         total = sum(deck["count"] for deck in exported)
         print(f"Exported {total} notes from {len(exported)} deck(s) -> {output}")

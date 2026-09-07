@@ -53,6 +53,7 @@ private struct HomeView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("quick-study")
 
                 NavigationLink(value: AppRoute.conversation) {
                     ProjectCard(

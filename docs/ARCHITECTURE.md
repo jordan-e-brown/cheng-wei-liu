@@ -6,12 +6,12 @@
 
 ### 快学 — Kuài Xué
 
-Read-only Anki self-study in the current milestone.
+Offline Anki self-study with a file-based desktop activity bridge.
 
-- Imports normalized JSON from Anki Desktop/AnkiConnect.
+- Imports normalized JSON from Anki Desktop/AnkiConnect or complete CrowdAnki deck JSON.
 - Shares imported data with the WidgetKit extension through an App Group.
 - Rotates cards passively at a user-selected 15m / 30m / 1h / 2h / 3h / 6h / 12h interval request.
-- Does not modify Anki scheduler state.
+- iOS does not modify Anki scheduler state; the desktop bridge can explicitly apply eligible ratings through AnkiConnect at sync time.
 - Anki Desktop remains authoritative for FSRS, add-ons, collection changes, and sync.
 
 Future add-on capability work remains desktop-bridged where the original add-on mutates the Anki collection or depends on Python/Qt. Pure presentation/gamification features can be reimplemented natively.
@@ -39,6 +39,10 @@ Anki Desktop + AnkiConnect
         |
         v
   iPhone 快学 app ---- App Group ---- WidgetKit
+        |                  |
+        |             immutable study events
+        v
+  activity JSON → Desktop bridge journal → AnkiConnect tags / optional ratings
 
 
   iPhone 汉语谈话
@@ -80,9 +84,13 @@ Deferred:
 
 - Realtime voice/WebRTC
 - pronunciation analysis
-- Anki desktop write-back
+- Historical Anki review/scheduling reconciliation
 - FSRS Helper actions
 - AnkiCollab bridge
 - HyperTTS bridge
 - native Life Drain / Speed Focus / review heatmap
 - TestFlight/App Store automation
+
+## Version 0.3
+
+See [ANKI_SYNC.md](ANKI_SYNC.md) for the JSON format, immutable event ledger, duplicate protection, interrupted-review reconciliation, iOS 26.6 compatibility, and repeatable validation commands. Native APKG ingestion and cloud sync remain deferred.
